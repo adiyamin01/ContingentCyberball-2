@@ -30,11 +30,9 @@
       margin: 0;
     }
 
-
     h1 {
       margin-bottom: 5px;
     }
-
 
     #instruction-text {
       margin-top: 5px;
@@ -53,10 +51,7 @@
       width: 80px;
       height: 80px;
 
-      background-color: #808080;
-
       border-radius: 50%;
-
       position: absolute;
 
       display: flex;
@@ -70,7 +65,6 @@
       cursor: pointer;
 
       border: 3px solid transparent;
-
       box-sizing: border-box;
 
       z-index: 2;
@@ -83,8 +77,8 @@
 
 
     .avatar-icon {
-      font-size: 32px;
-      line-height: 32px;
+      font-size: 34px;
+      line-height: 34px;
       pointer-events: none;
     }
 
@@ -100,6 +94,12 @@
       text-overflow: ellipsis;
 
       pointer-events: none;
+    }
+
+
+    .error-icon {
+      font-size: 30px;
+      line-height: 30px;
     }
 
 
@@ -245,29 +245,26 @@
 
 
     <!-- =====================================================
-         PLAYER B
-         QUALTRICS player1
          TAYLOR
+         PLAYER B
          TOP
          ===================================================== -->
 
     <div
       class="player"
       id="playerB"
-      style="left:185px; top:15px;"
+      style="
+        left:185px;
+        top:20px;
+        background-color:#F5B041;
+      "
     >
 
-      <div
-        class="avatar-icon"
-        id="playerB-avatar-icon"
-      >
-        👤
+      <div class="avatar-icon">
+        🐰
       </div>
 
-      <div
-        class="player-name"
-        id="playerB-avatar-name"
-      >
+      <div class="player-name">
         Taylor
       </div>
 
@@ -276,29 +273,26 @@
 
 
     <!-- =====================================================
-         PLAYER C
-         QUALTRICS player2
          ALEX
+         PLAYER C
          RIGHT
          ===================================================== -->
 
     <div
       class="player"
       id="playerC"
-      style="left:335px; top:150px;"
+      style="
+        left:335px;
+        top:150px;
+        background-color:#AF7AC5;
+      "
     >
 
-      <div
-        class="avatar-icon"
-        id="playerC-avatar-icon"
-      >
-        👤
+      <div class="avatar-icon">
+        🐧
       </div>
 
-      <div
-        class="player-name"
-        id="playerC-avatar-name"
-      >
+      <div class="player-name">
         Alex
       </div>
 
@@ -308,28 +302,26 @@
 
     <!-- =====================================================
          PLAYER E
-         QUALTRICS player3
          USER
-         BOTTOM
+         ERROR
+         LEFT
          ===================================================== -->
 
     <div
       class="player"
       id="playerE"
-      style="left:185px; top:285px;"
+      style="
+        left:35px;
+        top:150px;
+        background-color:#8c8c8c;
+      "
     >
 
-      <div
-        class="avatar-icon"
-        id="playerE-avatar-icon"
-      >
-        👤
+      <div class="avatar-icon error-icon">
+        ⚠
       </div>
 
-      <div
-        class="player-name"
-        id="playerE-avatar-name"
-      >
+      <div class="player-name">
         User
       </div>
 
@@ -339,20 +331,24 @@
 
     <!-- =====================================================
          PARTICIPANT
-         LEFT
+         BOTTOM
          ===================================================== -->
 
     <div
       class="player"
       id="player0"
-      style="left:35px; top:150px;"
+      style="
+        left:185px;
+        top:280px;
+        background-color:#2ecc71;
+      "
     >
 
       <div
         class="avatar-icon"
         id="participant-avatar-icon"
       >
-        👤
+        🐶
       </div>
 
       <div
@@ -384,7 +380,6 @@
   </div>
 
 
-
   <button
     id="end-early-btn"
     onclick="endGame()"
@@ -401,33 +396,24 @@
 
 
 /* =========================================================
-   DATA
+   PARTICIPANT DATA FROM QUALTRICS
    ========================================================= */
 
 
-let nickname =
-  "You";
+let nickname = "You";
 
+let participantIcon = "DOG";
 
-let participantIcon =
-  "DOG";
+let participantColor = "GREEN";
 
+let participantDataReceived = false;
 
-let participantColor =
-  "GREEN";
-
-
-let participantDataReceived =
-  false;
-
-
-let gameStarted =
-  false;
+let gameStarted = false;
 
 
 
 /* =========================================================
-   AVATAR MAPS
+   PARTICIPANT AVATAR MAPS
    ========================================================= */
 
 
@@ -442,7 +428,6 @@ const iconMap = {
   "OWL": "🦉"
 
 };
-
 
 
 const colorMap = {
@@ -460,191 +445,83 @@ const colorMap = {
 
 
 /* =========================================================
-   ICON NORMALIZATION
-   ========================================================= */
-
-
-function getIcon(value) {
-
-  if (
-    value === undefined ||
-    value === null ||
-    value === ""
-  ) {
-    return "👤";
-  }
-
-
-  const raw =
-    String(value).trim();
-
-
-  /*
-     If Qualtrics already sends an emoji,
-     use it directly.
-  */
-
-  if (
-    raw === "🐶" ||
-    raw === "🐱" ||
-    raw === "🦉"
-  ) {
-    return raw;
-  }
-
-
-  const normalized =
-    raw.toUpperCase();
-
-
-  return (
-    iconMap[normalized] ||
-    "👤"
-  );
-
-}
-
-
-
-/* =========================================================
-   COLOR NORMALIZATION
-   ========================================================= */
-
-
-function getColor(
-  value,
-  fallbackColor
-) {
-
-  if (
-    value === undefined ||
-    value === null ||
-    value === ""
-  ) {
-    return fallbackColor;
-  }
-
-
-  const raw =
-    String(value).trim();
-
-
-  /*
-     Allow an actual hex color
-     if Qualtrics sends one.
-  */
-
-  if (
-    /^#[0-9A-F]{6}$/i.test(raw)
-  ) {
-    return raw;
-  }
-
-
-  const normalized =
-    raw.toUpperCase();
-
-
-  return (
-    colorMap[normalized] ||
-    fallbackColor
-  );
-
-}
-
-
-
-/* =========================================================
-   APPLY AVATAR
-   ========================================================= */
-
-
-function applyAvatar(
-  playerId,
-  playerName,
-  iconValue,
-  colorValue,
-  fallbackColor
-) {
-
-  const player =
-    document.getElementById(
-      playerId
-    );
-
-
-  if (!player) {
-    return;
-  }
-
-
-  const icon =
-    player.querySelector(
-      ".avatar-icon"
-    );
-
-
-  const name =
-    player.querySelector(
-      ".player-name"
-    );
-
-
-  if (icon) {
-
-    icon.innerText =
-      getIcon(
-        iconValue
-      );
-
-  }
-
-
-  if (name) {
-
-    name.innerText =
-      playerName;
-
-  }
-
-
-  player.style.backgroundColor =
-    getColor(
-      colorValue,
-      fallbackColor
-    );
-
-}
-
-
-
-/* =========================================================
-   APPLY PARTICIPANT
+   APPLY PARTICIPANT AVATAR
    ========================================================= */
 
 
 function applyParticipantAvatar() {
 
-  applyAvatar(
-    "player0",
-    nickname,
-    participantIcon,
-    participantColor,
-    "#2ecc71"
-  );
+
+  const participant =
+    document.getElementById(
+      "player0"
+    );
+
+
+  const icon =
+    document.getElementById(
+      "participant-avatar-icon"
+    );
+
+
+  const name =
+    document.getElementById(
+      "participant-avatar-name"
+    );
+
+
+
+  if (name) {
+
+    name.innerText =
+      nickname || "You";
+
+  }
+
+
+
+  if (icon) {
+
+
+    const normalizedIcon =
+      String(
+        participantIcon || ""
+      )
+      .trim()
+      .toUpperCase();
+
+
+    icon.innerText =
+      iconMap[normalizedIcon]
+      || "🐶";
+
+  }
+
+
+
+  if (participant) {
+
+
+    const normalizedColor =
+      String(
+        participantColor || ""
+      )
+      .trim()
+      .toUpperCase();
+
+
+    participant.style.backgroundColor =
+      colorMap[normalizedColor]
+      || "#2ecc71";
+
+  }
 
 }
 
 
 
 /* =========================================================
-   RECEIVE DATA FROM QUALTRICS
-
-   CONNECTION:
-
-   Qualtrics player1 -> Taylor -> playerB
-   Qualtrics player2 -> Alex   -> playerC
-   Qualtrics player3 -> User   -> playerE
+   RECEIVE PARTICIPANT DATA FROM QUALTRICS
    ========================================================= */
 
 
@@ -671,15 +548,10 @@ window.addEventListener(
 
 
     console.log(
-      "CyberCatch received Qualtrics data:",
+      "CyberCatch received participant data:",
       event.data
     );
 
-
-
-    /* =========================
-       PARTICIPANT
-       ========================= */
 
 
     if (
@@ -724,73 +596,6 @@ window.addEventListener(
     applyParticipantAvatar();
 
 
-
-    /* =========================
-       PLAYER 1
-       TAYLOR = B
-       ========================= */
-
-
-    applyAvatar(
-
-      "playerB",
-
-      "Taylor",
-
-      event.data.player1_icon,
-
-      event.data.player1_color,
-
-      "#808080"
-
-    );
-
-
-
-    /* =========================
-       PLAYER 2
-       ALEX = C
-       ========================= */
-
-
-    applyAvatar(
-
-      "playerC",
-
-      "Alex",
-
-      event.data.player2_icon,
-
-      event.data.player2_color,
-
-      "#808080"
-
-    );
-
-
-
-    /* =========================
-       PLAYER 3
-       USER = E
-       ========================= */
-
-
-    applyAvatar(
-
-      "playerE",
-
-      "User",
-
-      event.data.player3_icon,
-
-      event.data.player3_color,
-
-      "#808080"
-
-    );
-
-
-
     participantDataReceived =
       true;
 
@@ -808,12 +613,11 @@ window.addEventListener(
 
 
 /* =========================================================
-   READY HANDSHAKE WITH QUALTRICS
+   TELL QUALTRICS HTML IS READY
    ========================================================= */
 
 
-let readyAttempts =
-  0;
+let readyAttempts = 0;
 
 
 function tellQualtricsReady() {
@@ -829,11 +633,6 @@ function tellQualtricsReady() {
 
   readyAttempts++;
 
-
-  /*
-     Repeat handshake in case the Qualtrics
-     listener was not ready on first load.
-  */
 
   if (
     !participantDataReceived &&
@@ -876,13 +675,6 @@ const aiPlayers = [
 ];
 
 
-
-/*
-   Returning rates apply ONLY
-   to independent participant throws.
-*/
-
-
 const returningRates = {
 
   playerB: 0.25,
@@ -894,17 +686,11 @@ const returningRates = {
 };
 
 
+const TOTAL_THROWS = 72;
 
-const TOTAL_THROWS =
-  72;
+const INDEPENDENT_THROWS_TOTAL = 48;
 
-
-const INDEPENDENT_THROWS_TOTAL =
-  48;
-
-
-const FORCED_THROWS_TOTAL =
-  24;
+const FORCED_THROWS_TOTAL = 24;
 
 
 
@@ -955,16 +741,13 @@ let remainingHopsBeforeReturn =
    ========================================================= */
 
 
-let throwSequence =
-  [];
-
+let throwSequence = [];
 
 
 function createThrowSequence() {
 
 
-  const blocks =
-    [];
+  const blocks = [];
 
 
   /*
@@ -989,10 +772,8 @@ function createThrowSequence() {
   }
 
 
-
   /*
-     24 additional
-     independent throws.
+     24 additional independent throws
   */
 
 
@@ -1011,9 +792,8 @@ function createThrowSequence() {
   }
 
 
-
   /*
-     Shuffle blocks.
+     Shuffle blocks
   */
 
 
@@ -1043,10 +823,8 @@ function createThrowSequence() {
   }
 
 
-
   throwSequence =
     blocks.flat();
-
 
 
   console.log(
@@ -1054,14 +832,7 @@ function createThrowSequence() {
     throwSequence
   );
 
-
-  console.log(
-    "Sequence length:",
-    throwSequence.length
-  );
-
 }
-
 
 
 createThrowSequence();
@@ -1082,7 +853,7 @@ function isNextThrowForced() {
 
 
 /* =========================================================
-   GET PLAYER NAME
+   PLAYER NAME
    ========================================================= */
 
 
@@ -1130,7 +901,7 @@ function getPlayerName(
 
 
 /* =========================================================
-   WAITING SCREEN
+   WAITING
    ========================================================= */
 
 
@@ -1195,7 +966,6 @@ function startGame() {
     "block";
 
 
-
   currentPlayer =
     "playerB";
 
@@ -1204,16 +974,10 @@ function startGame() {
     null;
 
 
-
   updateBallHolderVisual(
     currentPlayer
   );
 
-
-
-  /*
-     PARTICIPANT CLICK BEHAVIOR
-  */
 
 
   document
@@ -1237,25 +1001,11 @@ function startGame() {
             }
 
 
-
-            /*
-               Participant cannot
-               throw to themselves.
-            */
-
-
             if (
               this.id === "player0"
             ) {
               return;
             }
-
-
-
-            /*
-               Forced throw:
-               must return to sender.
-            */
 
 
             if (
@@ -1275,7 +1025,6 @@ function startGame() {
               return;
 
             }
-
 
 
             processThrow(
@@ -1322,16 +1071,14 @@ function processThrow(
   }
 
 
-
   const throwIsForced =
     isNextThrowForced();
-
 
 
   if (
     throwIsForced &&
     forcedThrowsCompleted >=
-      FORCED_THROWS_TOTAL
+    FORCED_THROWS_TOTAL
   ) {
 
     console.error(
@@ -1343,11 +1090,10 @@ function processThrow(
   }
 
 
-
   if (
     !throwIsForced &&
     independentThrowsCompleted >=
-      INDEPENDENT_THROWS_TOTAL
+    INDEPENDENT_THROWS_TOTAL
   ) {
 
     console.error(
@@ -1359,14 +1105,11 @@ function processThrow(
   }
 
 
-
   const senderId =
     fromId;
 
 
-
   totalThrows++;
-
 
 
   if (
@@ -1382,7 +1125,6 @@ function processThrow(
     independentThrowsCompleted++;
 
   }
-
 
 
   updateBallHolder(
@@ -1413,55 +1155,44 @@ function processThrow(
       null;
 
 
+    gameLog.push({
 
-    gameLog.push(
-      {
+      throwNum:
+        totalThrows,
 
-        throwNum:
-          totalThrows,
+      throwType:
+        throwIsForced
+          ? "forced"
+          : "independent",
 
-        throwType:
-          throwIsForced
-            ? "forced"
-            : "independent",
+      forced:
+        throwIsForced,
 
-        forced:
-          throwIsForced,
+      createsForcedReturn:
+        !throwIsForced &&
+        isNextThrowForced(),
 
-        createsForcedReturn:
-          !throwIsForced &&
-          isNextThrowForced(),
+      from:
+        nickname,
 
-        from:
-          nickname,
+      fromId:
+        "player0",
 
-        fromId:
-          "player0",
+      to:
+        getPlayerName(
+          toId
+        ),
 
-        to:
-          getPlayerName(
-            toId
-          ),
+      targetId:
+        toId,
 
-        targetId:
-          toId,
+      rt:
+        rt,
 
-        rt:
-          rt,
+      timestamp:
+        Date.now()
 
-        timestamp:
-          Date.now()
-
-      }
-    );
-
-
-
-    /*
-       Contingent return probability
-       applies to independent
-       participant -> AI throws.
-    */
+    });
 
 
     if (
@@ -1474,7 +1205,6 @@ function processThrow(
         returningRates[
           toId
         ];
-
 
 
       if (
@@ -1495,14 +1225,6 @@ function processThrow(
       }
 
     }
-
-
-
-    /*
-       If next throw is forced,
-       forced return overrides
-       contingent plan.
-    */
 
 
     if (
@@ -1527,45 +1249,43 @@ function processThrow(
   else {
 
 
-    gameLog.push(
-      {
+    gameLog.push({
 
-        throwNum:
-          totalThrows,
+      throwNum:
+        totalThrows,
 
-        throwType:
-          throwIsForced
-            ? "forced"
-            : "independent",
+      throwType:
+        throwIsForced
+          ? "forced"
+          : "independent",
 
-        forced:
-          throwIsForced,
+      forced:
+        throwIsForced,
 
-        createsForcedReturn:
-          !throwIsForced &&
-          isNextThrowForced(),
+      createsForcedReturn:
+        !throwIsForced &&
+        isNextThrowForced(),
 
-        from:
-          getPlayerName(
-            fromId
-          ),
+      from:
+        getPlayerName(
+          fromId
+        ),
 
-        fromId:
-          fromId,
+      fromId:
+        fromId,
 
-        to:
-          getPlayerName(
-            toId
-          ),
+      to:
+        getPlayerName(
+          toId
+        ),
 
-        targetId:
-          toId,
+      targetId:
+        toId,
 
-        timestamp:
-          Date.now()
+      timestamp:
+        Date.now()
 
-      }
-    );
+    });
 
   }
 
@@ -1598,7 +1318,6 @@ function processThrow(
 
     }
 
-
     else {
 
 
@@ -1615,7 +1334,6 @@ function processThrow(
     }
 
   }
-
 
 
   else if (
@@ -1635,7 +1353,6 @@ function processThrow(
       " passed the ball to you. You must return the ball to the player who threw it.";
 
   }
-
 
 
   else {
@@ -1658,7 +1375,6 @@ function processThrow(
 
     }
 
-
     else {
 
 
@@ -1680,7 +1396,6 @@ function processThrow(
   }
 
 
-
   if (
     totalThrows >=
     TOTAL_THROWS
@@ -1691,7 +1406,6 @@ function processThrow(
     return;
 
   }
-
 
 
   if (
@@ -1735,7 +1449,6 @@ function updateBallHolderVisual(
   }
 
 
-
   document
     .querySelectorAll(
       ".player"
@@ -1751,11 +1464,9 @@ function updateBallHolderVisual(
     );
 
 
-
   target.classList.add(
     "has-ball"
   );
-
 
 
   moveBall(
@@ -1768,11 +1479,6 @@ function updateBallHolderVisual(
 
 }
 
-
-
-/* =========================================================
-   FULL HOLDER UPDATE
-   ========================================================= */
 
 
 function updateBallHolder(
@@ -1788,7 +1494,6 @@ function updateBallHolder(
   updateBallHolderVisual(
     newHolder
   );
-
 
 
   if (
@@ -1841,14 +1546,12 @@ function moveBall(
   }
 
 
-
   const tRect =
     target.getBoundingClientRect();
 
 
   const cRect =
     container.getBoundingClientRect();
-
 
 
   const x =
@@ -1858,13 +1561,11 @@ function moveBall(
     ball.offsetWidth / 2;
 
 
-
   const y =
     tRect.top -
     cRect.top +
     target.offsetHeight / 2 -
     ball.offsetHeight / 2;
-
 
 
   ball.style.left =
@@ -1908,7 +1609,7 @@ function aiTurn() {
   if (
     gameEnded ||
     totalThrows >=
-      TOTAL_THROWS
+    TOTAL_THROWS
   ) {
 
     endGame();
@@ -1918,19 +1619,12 @@ function aiTurn() {
   }
 
 
-
   let next;
-
 
 
   const throwIsForced =
     isNextThrowForced();
 
-
-
-  /* =======================================================
-     FORCED AI THROW
-     ======================================================= */
 
 
   if (
@@ -1940,7 +1634,6 @@ function aiTurn() {
 
     next =
       previousPlayer;
-
 
 
     if (
@@ -1969,17 +1662,10 @@ function aiTurn() {
     }
 
 
-
     remainingHopsBeforeReturn =
       0;
 
   }
-
-
-
-  /* =======================================================
-     INDEPENDENT AI THROW
-     ======================================================= */
 
 
   else {
@@ -2003,7 +1689,6 @@ function aiTurn() {
       remainingHopsBeforeReturn--;
 
 
-
       const otherAIs =
         aiPlayers.filter(
           function(playerId) {
@@ -2017,7 +1702,6 @@ function aiTurn() {
         );
 
 
-
       next =
         otherAIs[
           Math.floor(
@@ -2029,7 +1713,6 @@ function aiTurn() {
     }
 
   }
-
 
 
   processThrow(
@@ -2059,7 +1742,6 @@ function endGame() {
     true;
 
 
-
   console.log(
     "FINAL GAME COUNTS:",
     {
@@ -2077,35 +1759,30 @@ function endGame() {
   );
 
 
+  gameLog.push({
 
-  gameLog.push(
-    {
+    logType:
+      "GameSummary",
 
-      logType:
-        "GameSummary",
+    totalThrows:
+      totalThrows,
 
-      totalThrows:
-        totalThrows,
+    independentThrows:
+      independentThrowsCompleted,
 
-      independentThrows:
-        independentThrowsCompleted,
+    forcedThrows:
+      forcedThrowsCompleted,
 
-      forcedThrows:
-        forcedThrowsCompleted,
+    timestamp:
+      Date.now()
 
-      timestamp:
-        Date.now()
-
-    }
-  );
-
+  });
 
 
   const gameLogString =
     JSON.stringify(
       gameLog
     );
-
 
 
   if (
@@ -2151,7 +1828,6 @@ function endGame() {
   }
 
 
-
   document.body.innerHTML = `
 
     <div
@@ -2184,7 +1860,6 @@ function endGame() {
 
 
 </script>
-
 
 </body>
 </html>
