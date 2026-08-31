@@ -1,0 +1,1631 @@
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <link href="https://fonts.cdnfonts.com/css/jungle-adventurer" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CyberCatch</title>
+
+  <style>
+    body {
+      font-family: 'Jungle Adventurer', Arial, sans-serif !important;
+      text-align: center;
+      background-color: #d3d3d3;
+      color: black;
+      overflow: hidden;
+      padding-top: 20px;
+      margin: 0;
+    }
+
+    .game-container {
+      position: relative;
+      width: 450px;
+      height: 400px;
+      margin: 40px auto 20px;
+    }
+
+    .player {
+      width: 80px;
+      height: 80px;
+      background-color: #808080;
+      border-radius: 50%;
+      position: absolute;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+
+      border: 3px solid transparent;
+      box-sizing: border-box;
+    }
+
+    .player.has-ball {
+      border-color: #2ecc71;
+    }
+
+    #player0 .avatar-icon {
+      font-size: 34px;
+      line-height: 34px;
+    }
+
+    #player0 .player-name {
+      font-size: 12px;
+      margin-top: 3px;
+      max-width: 70px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .ball {
+      width: 20px;
+      height: 20px;
+      background-color: #2ecc71;
+      border-radius: 50%;
+      position: absolute;
+      transition: left 0.6s ease-in-out, top 0.6s ease-in-out;
+      z-index: 5;
+    }
+
+    #loading-screen,
+    #waiting-screen {
+      display: flex;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: #d3d3d3;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 10;
+    }
+
+    #waiting-screen {
+      display: none;
+    }
+
+    #waiting-screen img {
+      width: 100px;
+      margin-top: 20px;
+    }
+
+    #end-early-btn {
+      font-family: 'Jungle Adventurer', Arial, sans-serif !important;
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="loading-screen">
+  <h2>Loading...</h2>
+</div>
+
+<div id="waiting-screen">
+  <h2>Waiting for other players to log in...</h2>
+
+  <img
+    src="https://icon-library.com/images/waiting-icon-gif/waiting-icon-gif-1.jpg"
+    alt="Waiting..."
+  />
+</div>
+
+<div id="game-screen" style="display:none;">
+
+  <h1>CyberCatch</h1>
+
+  <p id="instruction-text">
+    Click on a player to pass the ball when it's your turn.
+  </p>
+
+  <div class="game-container" id="game-container">
+
+    <!-- PLAYER B -->
+    <div
+      class="player"
+      id="playerB"
+      style="left:70px; top:70px;">
+      Taylor
+    </div>
+
+    <!-- PLAYER C -->
+    <div
+      class="player"
+      id="playerC"
+      style="left:300px; top:70px;">
+      Casey
+    </div>
+
+    <!-- PLAYER E -->
+    <div
+      class="player"
+      id="playerE"
+      style="left:185px; top:250px;">
+      Morgan
+    </div>
+
+    <!-- PARTICIPANT -->
+    <div
+      class="player"
+      id="player0"
+      style="left:185px; top:120px;">
+
+      <div
+        class="avatar-icon"
+        id="participant-avatar-icon">
+        🐶
+      </div>
+
+      <div
+        class="player-name"
+        id="participant-avatar-name">
+        You
+      </div>
+
+    </div>
+
+    <div class="ball" id="ball"></div>
+
+  </div>
+
+  <div class="info" id="info">
+    The game is starting...
+  </div>
+
+  <button
+    id="end-early-btn"
+    onclick="endGame()">
+    End Game
+  </button>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   PARTICIPANT DATA FROM QUALTRICS
+   ========================================================= */
+
+let nickname = "You";
+let participantIcon = "DOG";
+let participantColor = "GREEN";
+
+let participantDataReceived = false;
+let gameStarted = false;
+
+
+/* =========================================================
+   AVATAR MAPS
+   ========================================================= */
+
+const iconMap = {
+  1: "🐶",
+  2: "🐱",
+  3: "🦉",
+
+  DOG: "🐶",
+  CAT: "🐱",
+  OWL: "🦉"
+};
+
+
+const colorMap = {
+  1: "#e74c3c",
+  2: "#2ecc71",
+  3: "#ff69b4",
+
+  RED: "#e74c3c",
+  GREEN: "#2ecc71",
+  PINK: "#ff69b4"
+};
+
+
+/* =========================================================
+   RECEIVE PARTICIPANT DATA FROM QUALTRICS
+   ========================================================= */
+
+window.addEventListener("message", function(event) {
+
+  if (
+    !event.data ||
+    typeof event.data !== "object"
+  ) {
+    return;
+  }
+
+  if (
+    event.data.type ===
+    "CyberCatchParticipantData"
+  ) {
+
+    console.log(
+      "CyberCatch received participant data:",
+      event.data
+    );
+
+
+    if (event.data.participant_name) {
+
+      nickname =
+        String(
+          event.data.participant_name
+        );
+
+    }
+
+
+    if (event.data.participant_icon) {
+
+      participantIcon =
+        String(
+          event.data.participant_icon
+        )
+        .trim()
+        .toUpperCase();
+
+    }
+
+
+    if (event.data.participant_color) {
+
+      participantColor =
+        String(
+          event.data.participant_color
+        )
+        .trim()
+        .toUpperCase();
+
+    }
+
+
+    applyParticipantAvatar();
+
+    participantDataReceived = true;
+
+
+    if (!gameStarted) {
+      startWaiting();
+    }
+
+  }
+
+});
+
+
+/* =========================================================
+   APPLY PARTICIPANT AVATAR
+   ========================================================= */
+
+function applyParticipantAvatar() {
+
+  const participant =
+    document.getElementById(
+      "player0"
+    );
+
+  const icon =
+    document.getElementById(
+      "participant-avatar-icon"
+    );
+
+  const name =
+    document.getElementById(
+      "participant-avatar-name"
+    );
+
+
+  name.innerText =
+    nickname;
+
+
+  icon.innerText =
+    iconMap[participantIcon]
+    || "🐶";
+
+
+  participant.style.backgroundColor =
+    colorMap[participantColor]
+    || "#2ecc71";
+
+}
+
+
+/* =========================================================
+   TELL QUALTRICS THAT HTML IS READY
+   ========================================================= */
+
+function tellQualtricsReady() {
+
+  window.parent.postMessage(
+    {
+      type: "CyberCatchReady"
+    },
+    "*"
+  );
+
+}
+
+
+window.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    tellQualtricsReady();
+
+  }
+);
+
+
+/* =========================================================
+   GAME SETTINGS
+   ========================================================= */
+
+const aiPlayers = [
+  "playerB",
+  "playerC",
+  "playerE"
+];
+
+
+/*
+   Returning rates apply ONLY to independent throws.
+*/
+
+const returningRates = {
+
+  playerB: 0.25,
+
+  playerC: 0.75,
+
+  playerE: 0.50
+
+};
+
+
+/*
+   Total number of throws.
+*/
+
+const TOTAL_THROWS = 72;
+
+
+/*
+   Exactly 48 independent throws
+   and exactly 24 forced throws.
+*/
+
+const INDEPENDENT_THROWS_TOTAL = 48;
+
+const FORCED_THROWS_TOTAL = 24;
+
+
+/* =========================================================
+   GAME STATE
+   ========================================================= */
+
+let currentPlayer =
+  "playerB";
+
+
+/*
+   The player who made the previous throw.
+
+   This is crucial for forced throws.
+*/
+
+let previousPlayer = null;
+
+
+let totalThrows = 0;
+
+let independentThrowsCompleted = 0;
+
+let forcedThrowsCompleted = 0;
+
+
+let gameEnded = false;
+
+let gameLog = [];
+
+
+/*
+   Response time for participant throws.
+*/
+
+let lastPlayerReceiveTime = null;
+
+
+/*
+   Used for contingent AI behavior.
+
+   0 = return to participant
+   >0 = make intermediate AI throws
+*/
+
+let remainingHopsBeforeReturn = 0;
+
+
+/* =========================================================
+   THROW SEQUENCE
+   ========================================================= */
+
+/*
+   We create:
+
+   24 pairs:
+       Independent → Forced
+
+   plus:
+
+   24 additional Independent throws.
+
+   Total:
+
+       24 Forced
+       48 Independent
+       72 Total
+
+   Every forced throw therefore immediately follows
+   an independent throw.
+
+   The 24 IF pairs are randomly distributed among
+   the 24 standalone independent throws.
+
+   This means the forced throws are a random sample
+   of the independent receiving events.
+*/
+
+let throwSequence = [];
+
+
+function createThrowSequence() {
+
+  const blocks = [];
+
+
+  /*
+     24 blocks containing:
+
+       I → F
+  */
+
+  for (
+    let i = 0;
+    i < FORCED_THROWS_TOTAL;
+    i++
+  ) {
+
+    blocks.push([
+      "independent",
+      "forced"
+    ]);
+
+  }
+
+
+  /*
+     24 additional independent throws.
+  */
+
+  for (
+    let i = 0;
+    i < 24;
+    i++
+  ) {
+
+    blocks.push([
+      "independent"
+    ]);
+
+  }
+
+
+  /*
+     Shuffle the blocks.
+
+     This preserves the rule that every F
+     immediately follows an I.
+  */
+
+  for (
+    let i = blocks.length - 1;
+    i > 0;
+    i--
+  ) {
+
+    const j =
+      Math.floor(
+        Math.random() * (i + 1)
+      );
+
+    [
+      blocks[i],
+      blocks[j]
+    ] =
+    [
+      blocks[j],
+      blocks[i]
+    ];
+
+  }
+
+
+  /*
+     Flatten the blocks.
+  */
+
+  throwSequence =
+    blocks.flat();
+
+
+  console.log(
+    "Throw sequence:",
+    throwSequence
+  );
+
+
+  console.log(
+    "Total:",
+    throwSequence.length
+  );
+
+}
+
+
+createThrowSequence();
+
+
+/*
+   Check whether the NEXT throw is forced.
+*/
+
+function isNextThrowForced() {
+
+  return (
+    throwSequence[totalThrows] ===
+    "forced"
+  );
+
+}
+
+
+/* =========================================================
+   PLAYER NAME
+   ========================================================= */
+
+function getPlayerName(
+  playerId
+) {
+
+  if (
+    playerId === "player0"
+  ) {
+
+    return nickname;
+
+  }
+
+
+  const player =
+    document.getElementById(
+      playerId
+    );
+
+
+  return player
+    ? player.innerText
+    : playerId;
+
+}
+
+
+/* =========================================================
+   WAITING
+   ========================================================= */
+
+function startWaiting() {
+
+  if (gameStarted) {
+    return;
+  }
+
+
+  gameStarted = true;
+
+
+  document
+    .getElementById(
+      "loading-screen"
+    )
+    .style.display = "none";
+
+
+  document
+    .getElementById(
+      "waiting-screen"
+    )
+    .style.display = "flex";
+
+
+  setTimeout(
+    startGame,
+    4000
+  );
+
+}
+
+
+/* =========================================================
+   START GAME
+   ========================================================= */
+
+function startGame() {
+
+  document
+    .getElementById(
+      "waiting-screen"
+    )
+    .style.display = "none";
+
+
+  document
+    .getElementById(
+      "game-screen"
+    )
+    .style.display = "block";
+
+
+  /*
+     Initial ball holder.
+  */
+
+  currentPlayer =
+    "playerB";
+
+  previousPlayer =
+    null;
+
+
+  updateBallHolderVisual(
+    currentPlayer
+  );
+
+
+  /*
+     Participant click behavior.
+  */
+
+  document
+    .querySelectorAll(".player")
+    .forEach(
+      player => {
+
+        player.addEventListener(
+          "click",
+          function() {
+
+            if (
+              gameEnded ||
+              currentPlayer !== "player0"
+            ) {
+              return;
+            }
+
+
+            /*
+               If the NEXT throw is forced,
+               participant must return the ball
+               to the player who threw it.
+            */
+
+            if (
+              isNextThrowForced()
+            ) {
+
+              if (
+                this.id !==
+                previousPlayer
+              ) {
+
+                document
+                  .getElementById(
+                    "info"
+                  )
+                  .innerText =
+                  "You must return the ball to the player who threw it.";
+
+                return;
+
+              }
+
+            }
+
+
+            /*
+               Participant cannot throw
+               to themselves.
+            */
+
+            if (
+              this.id === "player0"
+            ) {
+
+              return;
+
+            }
+
+
+            processThrow(
+              "player0",
+              this.id,
+              "Player"
+            );
+
+          }
+
+        );
+
+      }
+    );
+
+
+  /*
+     Start AI.
+  */
+
+  setTimeout(
+    () => {
+
+      aiTurn();
+
+    },
+    getRandomDelay()
+  );
+
+}
+
+
+/* =========================================================
+   PROCESS THROW
+   ========================================================= */
+
+function processThrow(
+  fromId,
+  toId,
+  type
+) {
+
+  if (gameEnded) {
+    return;
+  }
+
+
+  /*
+     Determine THIS throw type
+     before incrementing the counter.
+  */
+
+  const throwIsForced =
+    isNextThrowForced();
+
+
+  /*
+     Safety check.
+  */
+
+  if (
+    throwIsForced &&
+    forcedThrowsCompleted >=
+      FORCED_THROWS_TOTAL
+  ) {
+
+    console.error(
+      "Too many forced throws."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    !throwIsForced &&
+    independentThrowsCompleted >=
+      INDEPENDENT_THROWS_TOTAL
+  ) {
+
+    console.error(
+      "Too many independent throws."
+    );
+
+    return;
+
+  }
+
+
+  /*
+     Save sender before updating holder.
+  */
+
+  const senderId =
+    fromId;
+
+
+  totalThrows++;
+
+
+  if (throwIsForced) {
+
+    forcedThrowsCompleted++;
+
+  } else {
+
+    independentThrowsCompleted++;
+
+  }
+
+
+  /*
+     Move ball.
+  */
+
+  updateBallHolder(
+    toId,
+    senderId
+  );
+
+
+  /* =======================================================
+     PARTICIPANT THROW
+     ======================================================= */
+
+  if (
+    type === "Player"
+  ) {
+
+    const rt =
+      lastPlayerReceiveTime
+        ? Date.now() -
+          lastPlayerReceiveTime
+        : null;
+
+
+    lastPlayerReceiveTime =
+      null;
+
+
+    gameLog.push({
+
+      throwNum:
+        totalThrows,
+
+      throwType:
+        throwIsForced
+          ? "forced"
+          : "independent",
+
+      forced:
+        throwIsForced,
+
+      /*
+         If this independent throw is followed
+         by a forced throw, record that too.
+      */
+
+      createsForcedReturn:
+        !throwIsForced &&
+        isNextThrowForced(),
+
+      from:
+        nickname,
+
+      fromId:
+        "player0",
+
+      to:
+        getPlayerName(toId),
+
+      targetId:
+        toId,
+
+      rt:
+        rt,
+
+      timestamp:
+        Date.now()
+
+    });
+
+
+    /*
+       Independent participant → AI.
+
+       Returning rate determines whether
+       the AI returns directly to participant.
+    */
+
+    if (
+      !throwIsForced &&
+      toId !== "player0"
+    ) {
+
+      const returnProb =
+        returningRates[toId];
+
+
+      if (
+        Math.random() <
+        returnProb
+      ) {
+
+        remainingHopsBeforeReturn =
+          0;
+
+      } else {
+
+        remainingHopsBeforeReturn =
+          2;
+
+      }
+
+    }
+
+
+    /*
+       If this participant throw is followed
+       by a forced throw, the forced response
+       overrides any contingent return plan.
+    */
+
+    if (
+      !throwIsForced &&
+      isNextThrowForced()
+    ) {
+
+      remainingHopsBeforeReturn =
+        0;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     AI THROW
+     ======================================================= */
+
+  else {
+
+    gameLog.push({
+
+      throwNum:
+        totalThrows,
+
+      throwType:
+        throwIsForced
+          ? "forced"
+          : "independent",
+
+      forced:
+        throwIsForced,
+
+      createsForcedReturn:
+        !throwIsForced &&
+        isNextThrowForced(),
+
+      from:
+        getPlayerName(fromId),
+
+      fromId:
+        fromId,
+
+      to:
+        getPlayerName(toId),
+
+      targetId:
+        toId,
+
+      timestamp:
+        Date.now()
+
+    });
+
+  }
+
+
+  /* =======================================================
+     INFORMATION TEXT
+     ======================================================= */
+
+  /*
+     If the CURRENT throw was forced,
+     the receiver must return to the sender.
+  */
+
+  if (
+    throwIsForced
+  ) {
+
+    if (
+      toId === "player0"
+    ) {
+
+      document
+        .getElementById(
+          "info"
+        )
+        .innerText =
+        getPlayerName(fromId) +
+        " passed the ball to you. You must return the ball to the player who threw it.";
+
+    } else {
+
+      document
+        .getElementById(
+          "info"
+        )
+        .innerText =
+        getPlayerName(toId) +
+        " must return the ball to the player who threw it.";
+
+    }
+
+  }
+
+
+  /*
+     If the CURRENT throw is independent,
+     but the NEXT throw is forced,
+     tell the participant immediately.
+  */
+
+  else if (
+    isNextThrowForced() &&
+    toId === "player0"
+  ) {
+
+    document
+      .getElementById(
+        "info"
+      )
+      .innerText =
+      getPlayerName(fromId) +
+      " passed the ball to you. You must return the ball to the player who threw it.";
+
+  }
+
+
+  /*
+     Normal independent throw.
+  */
+
+  else {
+
+    if (
+      toId === "player0"
+    ) {
+
+      document
+        .getElementById(
+          "info"
+        )
+        .innerText =
+        getPlayerName(fromId) +
+        " passed the ball to you – it's your turn!";
+
+    } else {
+
+      document
+        .getElementById(
+          "info"
+        )
+        .innerText =
+        getPlayerName(fromId) +
+        " passed the ball to " +
+        getPlayerName(toId);
+
+    }
+
+  }
+
+
+  /*
+     Automatically end at exactly 72 throws.
+  */
+
+  if (
+    totalThrows >= TOTAL_THROWS
+  ) {
+
+    endGame();
+
+    return;
+
+  }
+
+
+  /*
+     If AI has the ball,
+     continue automatically.
+
+     If participant has the ball,
+     wait for click.
+  */
+
+  if (
+    toId !== "player0"
+  ) {
+
+    setTimeout(
+      () => {
+
+        aiTurn();
+
+      },
+      getRandomDelay()
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   UPDATE BALL HOLDER
+   ========================================================= */
+
+function updateBallHolderVisual(
+  newHolder
+) {
+
+  const target =
+    document.getElementById(
+      newHolder
+    );
+
+
+  document
+    .querySelectorAll(".player")
+    .forEach(
+      p =>
+        p.classList.remove(
+          "has-ball"
+        )
+    );
+
+
+  target.classList.add(
+    "has-ball"
+  );
+
+
+  moveBall(
+    newHolder
+  );
+
+
+  currentPlayer =
+    newHolder;
+
+}
+
+
+/*
+   Full update including previous player.
+*/
+
+function updateBallHolder(
+  newHolder,
+  senderId
+) {
+
+  previousPlayer =
+    senderId;
+
+
+  updateBallHolderVisual(
+    newHolder
+  );
+
+
+  /*
+     Record when participant receives
+     the ball for RT measurement.
+  */
+
+  if (
+    newHolder === "player0"
+  ) {
+
+    lastPlayerReceiveTime =
+      Date.now();
+
+  }
+
+}
+
+
+/* =========================================================
+   MOVE BALL
+   ========================================================= */
+
+function moveBall(
+  targetId
+) {
+
+  const ball =
+    document.getElementById(
+      "ball"
+    );
+
+  const target =
+    document.getElementById(
+      targetId
+    );
+
+  const container =
+    document.getElementById(
+      "game-container"
+    );
+
+
+  const tRect =
+    target.getBoundingClientRect();
+
+  const cRect =
+    container.getBoundingClientRect();
+
+
+  const x =
+    tRect.left -
+    cRect.left +
+    target.offsetWidth / 2 -
+    ball.offsetWidth / 2;
+
+
+  const y =
+    tRect.top -
+    cRect.top +
+    target.offsetHeight / 2 -
+    ball.offsetHeight / 2;
+
+
+  ball.style.left =
+    `${x}px`;
+
+  ball.style.top =
+    `${y}px`;
+
+}
+
+
+/* =========================================================
+   RANDOM AI DELAY
+   ========================================================= */
+
+function getRandomDelay() {
+
+  return (
+    Math.floor(
+      Math.random() * 800
+    ) + 1200
+  );
+
+}
+
+
+/* =========================================================
+   AI TURN
+   ========================================================= */
+
+function aiTurn() {
+
+  if (
+    gameEnded ||
+    totalThrows >= TOTAL_THROWS
+  ) {
+
+    endGame();
+
+    return;
+
+  }
+
+
+  let next;
+
+
+  /*
+     IMPORTANT:
+
+     Determine whether the NEXT throw
+     is forced before choosing behavior.
+  */
+
+  const throwIsForced =
+    isNextThrowForced();
+
+
+  /* =======================================================
+     FORCED AI THROW
+     ======================================================= */
+
+  if (
+    throwIsForced
+  ) {
+
+    /*
+       The AI must return the ball
+       to the player who threw it.
+
+       Therefore there is no random choice.
+    */
+
+    next =
+      previousPlayer;
+
+
+    /*
+       Safety check.
+    */
+
+    if (
+      !next ||
+      next === currentPlayer
+    ) {
+
+      console.error(
+        "Invalid forced throw:",
+        {
+          currentPlayer:
+            currentPlayer,
+
+          previousPlayer:
+            previousPlayer,
+
+          totalThrows:
+            totalThrows
+        }
+      );
+
+      return;
+
+    }
+
+
+    /*
+       Forced return overrides
+       any previous contingent plan.
+    */
+
+    remainingHopsBeforeReturn =
+      0;
+
+  }
+
+
+  /* =======================================================
+     INDEPENDENT AI THROW
+     ======================================================= */
+
+  else {
+
+    /*
+       If the AI is due to return directly
+       to the participant, do so.
+    */
+
+    if (
+      remainingHopsBeforeReturn === 0
+    ) {
+
+      next =
+        "player0";
+
+    }
+
+
+    /*
+       Otherwise make an intermediate
+       AI-to-AI throw.
+    */
+
+    else {
+
+      remainingHopsBeforeReturn--;
+
+
+      const otherAIs =
+        aiPlayers.filter(
+          p =>
+            p !== currentPlayer
+        );
+
+
+      next =
+        otherAIs[
+          Math.floor(
+            Math.random() *
+            otherAIs.length
+          )
+        ];
+
+    }
+
+  }
+
+
+  processThrow(
+    currentPlayer,
+    next,
+    "AI"
+  );
+
+}
+
+
+/* =========================================================
+   END GAME
+   ========================================================= */
+
+function endGame() {
+
+  if (gameEnded) {
+    return;
+  }
+
+
+  gameEnded = true;
+
+
+  /*
+     Final count check.
+  */
+
+  console.log(
+    "FINAL GAME COUNTS:",
+    {
+      totalThrows:
+        totalThrows,
+
+      independentThrows:
+        independentThrowsCompleted,
+
+      forcedThrows:
+        forcedThrowsCompleted
+    }
+  );
+
+
+  /*
+     Add summary information to the log.
+  */
+
+  gameLog.push({
+
+    logType:
+      "GameSummary",
+
+    totalThrows:
+      totalThrows,
+
+    independentThrows:
+      independentThrowsCompleted,
+
+    forcedThrows:
+      forcedThrowsCompleted,
+
+    timestamp:
+      Date.now()
+
+  });
+
+
+  const gameLogString =
+    JSON.stringify(
+      gameLog
+    );
+
+
+  /*
+     If CyberCatch is running directly
+     inside Qualtrics.
+  */
+
+  if (
+    window.Qualtrics &&
+    Qualtrics.SurveyEngine
+  ) {
+
+    Qualtrics.SurveyEngine
+      .setEmbeddedData(
+        "CyberCatchLog",
+        gameLogString
+      );
+
+  }
+
+
+  /*
+     Normal GitHub iframe → Qualtrics.
+  */
+
+  else {
+
+    window.parent.postMessage(
+      {
+
+        type:
+          "CyberCatchLog",
+
+        gameLog:
+          gameLogString,
+
+        participant_name:
+          nickname,
+
+        participant_icon:
+          participantIcon,
+
+        participant_color:
+          participantColor
+
+      },
+      "*"
+    );
+
+  }
+
+
+  document.body.innerHTML = `
+
+    <div
+      style="
+        background-color:#d3d3d3;
+        width:100vw;
+        height:100vh;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-direction:column;
+      "
+    >
+
+      <div
+        style="
+          font-size:24px;
+          font-weight:bold;
+          color:#2c3e50;
+        "
+      >
+        The task has ended. Thank you!
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+</script>
+
+</body>
+</html>
