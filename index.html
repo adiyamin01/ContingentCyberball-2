@@ -30,16 +30,13 @@
       margin: 0;
     }
 
-
     h1 {
       margin-bottom: 5px;
     }
 
-
     #instruction-text {
       margin-top: 5px;
     }
-
 
     .game-container {
       position: relative;
@@ -47,7 +44,6 @@
       height: 400px;
       margin: 25px auto 10px;
     }
-
 
     .player {
       width: 80px;
@@ -72,11 +68,9 @@
       z-index: 2;
     }
 
-
     .player.has-ball {
       border-color: #2ecc71;
     }
-
 
     .avatar-icon {
       font-size: 34px;
@@ -84,20 +78,15 @@
       pointer-events: none;
     }
 
-
     .player-name {
       font-size: 11px;
       margin-top: 3px;
-
       max-width: 70px;
-
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
-
       pointer-events: none;
     }
-
 
     .error-icon {
       font-size: 30px;
@@ -130,11 +119,10 @@
 
 
     /* =====================================================
-       FORCED BALL = STAR
+       FORCED THROW = STAR
        ===================================================== */
 
     .ball.forced-ball {
-
       border-radius: 0;
 
       clip-path: polygon(
@@ -154,7 +142,6 @@
 
     #loading-screen,
     #waiting-screen {
-
       position: fixed;
 
       width: 100%;
@@ -172,49 +159,18 @@
       z-index: 10;
     }
 
-
     #loading-screen {
       display: flex;
     }
-
 
     #waiting-screen {
       display: none;
     }
 
-
     #waiting-screen img {
       width: 100px;
       margin-top: 20px;
     }
-
-
-    #end-early-btn {
-
-      font-family:
-        'Jungle Adventurer',
-        Arial,
-        sans-serif !important;
-
-      margin-top: 15px;
-
-      padding: 10px 20px;
-
-      font-size: 16px;
-
-      cursor: pointer;
-
-      background-color: #e74c3c;
-
-      color: white;
-
-      border: none;
-
-      border-radius: 5px;
-
-      display: none;
-    }
-
 
     #info {
       min-height: 24px;
@@ -222,10 +178,6 @@
       font-weight: bold;
       font-size: 16px;
     }
-
-
-    /* Extra note shown only when participant
-       clicks the wrong player during forced throw */
 
     #forced-note {
       min-height: 20px;
@@ -236,6 +188,9 @@
       font-weight: normal;
     }
 
+    #end-early-btn {
+      display: none;
+    }
 
   </style>
 
@@ -360,8 +315,7 @@
 
 
     <!-- =================================================
-         PLAYER E
-         ERROR
+         USER / ERROR
          LEFT
          ================================================= -->
 
@@ -390,7 +344,7 @@
     <!-- =================================================
          PARTICIPANT
          BOTTOM
-         ICON + COLOR FROM QUALTRICS
+         FROM QUALTRICS
          ================================================= -->
 
     <div
@@ -429,12 +383,7 @@
 
 
 
-  <!-- ===================================================
-       INSTRUCTION AREA
-       =================================================== -->
-
   <div
-    class="info"
     id="info"
   >
     The game is starting...
@@ -442,15 +391,6 @@
 
 
   <div id="forced-note"></div>
-
-
-
-  <button
-    id="end-early-btn"
-    onclick="endGame()"
-  >
-    End Game
-  </button>
 
 
 </div>
@@ -461,7 +401,7 @@
 
 
 /* =========================================================
-   PARTICIPANT DATA FROM QUALTRICS
+   PARTICIPANT DATA
    ========================================================= */
 
 let nickname = "You";
@@ -477,7 +417,7 @@ let gameStarted = false;
 
 
 /* =========================================================
-   PARTICIPANT ICON MAP
+   AVATAR MAPS
    ========================================================= */
 
 const iconMap = {
@@ -492,11 +432,6 @@ const iconMap = {
 
 };
 
-
-
-/* =========================================================
-   PARTICIPANT COLOR MAP
-   ========================================================= */
 
 const colorMap = {
 
@@ -518,24 +453,18 @@ const colorMap = {
 
 function applyParticipantAvatar() {
 
-
   const participant =
-    document.getElementById(
-      "player0"
-    );
-
+    document.getElementById("player0");
 
   const icon =
     document.getElementById(
       "participant-avatar-icon"
     );
 
-
   const name =
     document.getElementById(
       "participant-avatar-name"
     );
-
 
 
   if (name) {
@@ -546,26 +475,16 @@ function applyParticipantAvatar() {
   }
 
 
-
   if (icon) {
-
 
     const rawIcon =
       String(
         participantIcon || ""
       ).trim();
 
-
     const normalizedIcon =
       rawIcon.toUpperCase();
 
-
-    /*
-       Allows Qualtrics to send either:
-       DOG / CAT / OWL
-       1 / 2 / 3
-       or the emoji itself
-    */
 
     if (
       rawIcon === "🐶" ||
@@ -590,24 +509,16 @@ function applyParticipantAvatar() {
   }
 
 
-
   if (participant) {
-
 
     const rawColor =
       String(
         participantColor || ""
       ).trim();
 
-
     const normalizedColor =
       rawColor.toUpperCase();
 
-
-    /*
-       If Qualtrics sends a HEX color,
-       use it directly.
-    */
 
     if (
       /^#[0-9A-F]{6}$/i.test(
@@ -643,14 +554,11 @@ window.addEventListener(
   "message",
   function(event) {
 
-
     if (
       !event.data ||
       typeof event.data !== "object"
     ) {
-
       return;
-
     }
 
 
@@ -658,18 +566,8 @@ window.addEventListener(
       event.data.type !==
       "CyberCatchParticipantData"
     ) {
-
       return;
-
     }
-
-
-
-    console.log(
-      "CyberCatch received participant data:",
-      event.data
-    );
-
 
 
     if (
@@ -684,7 +582,6 @@ window.addEventListener(
     }
 
 
-
     if (
       event.data.participant_icon
     ) {
@@ -695,7 +592,6 @@ window.addEventListener(
         );
 
     }
-
 
 
     if (
@@ -710,13 +606,11 @@ window.addEventListener(
     }
 
 
-
     applyParticipantAvatar();
 
 
     participantDataReceived =
       true;
-
 
 
     if (!gameStarted) {
@@ -731,14 +625,13 @@ window.addEventListener(
 
 
 /* =========================================================
-   TELL QUALTRICS HTML IS READY
+   QUALTRICS READY
    ========================================================= */
 
 let readyAttempts = 0;
 
 
 function tellQualtricsReady() {
-
 
   window.parent.postMessage(
     {
@@ -766,20 +659,15 @@ function tellQualtricsReady() {
 }
 
 
-
 window.addEventListener(
   "DOMContentLoaded",
-  function() {
-
-    tellQualtricsReady();
-
-  }
+  tellQualtricsReady
 );
 
 
 
 /* =========================================================
-   GAME SETTINGS
+   PLAYERS
    ========================================================= */
 
 const aiPlayers = [
@@ -792,10 +680,11 @@ const aiPlayers = [
 
 
 
-/*
-   Returning rates apply only
-   to independent throws.
-*/
+/* =========================================================
+   RETURNING RATES
+
+   These apply ONLY to independent participant throws.
+   ========================================================= */
 
 const returningRates = {
 
@@ -809,11 +698,179 @@ const returningRates = {
 
 
 
-const TOTAL_THROWS = 72;
+/* =========================================================
+   TOTALS
+   ========================================================= */
 
-const INDEPENDENT_THROWS_TOTAL = 48;
+const TOTAL_INDEPENDENT_THROWS =
+  48;
 
-const FORCED_THROWS_TOTAL = 24;
+const TOTAL_FORCED_THROWS =
+  24;
+
+const TOTAL_THROWS =
+  72;
+
+
+
+/* =========================================================
+   FORCED QUOTAS
+
+   EXACTLY:
+
+   Participant = 6
+   Taylor      = 6
+   Alex        = 6
+   User        = 6
+
+   Participant forced throws:
+
+   2 -> Taylor
+   2 -> Alex
+   2 -> User
+   ========================================================= */
+
+const forcedCounts = {
+
+  player0: 0,
+
+  playerB: 0,
+
+  playerC: 0,
+
+  playerE: 0
+
+};
+
+
+const participantForcedTargets = {
+
+  playerB: 0,
+
+  playerC: 0,
+
+  playerE: 0
+
+};
+
+
+
+/* =========================================================
+   RANDOM FORCED SCHEDULE
+
+   24 planned forced events.
+
+   Six independent slots at the end are kept
+   as a safety buffer.
+
+   If a forced event cannot happen at its
+   planned moment, it is carried forward
+   until the next possible independent throw.
+
+   This keeps the forced events distributed,
+   while still guaranteeing the exact quotas.
+   ========================================================= */
+
+function shuffleArray(array) {
+
+  for (
+    let i = array.length - 1;
+    i > 0;
+    i--
+  ) {
+
+    const j =
+      Math.floor(
+        Math.random() *
+        (i + 1)
+      );
+
+
+    [
+      array[i],
+      array[j]
+    ] =
+    [
+      array[j],
+      array[i]
+    ];
+
+  }
+
+
+  return array;
+
+}
+
+
+
+function createForcedSchedule() {
+
+  /*
+     First 42 independent throws:
+
+     24 planned forced
+     18 normal
+
+     Last 6 are reserve slots.
+  */
+
+  const firstPart = [];
+
+
+  for (
+    let i = 0;
+    i < 24;
+    i++
+  ) {
+
+    firstPart.push(
+      true
+    );
+
+  }
+
+
+  for (
+    let i = 0;
+    i < 18;
+    i++
+  ) {
+
+    firstPart.push(
+      false
+    );
+
+  }
+
+
+  shuffleArray(
+    firstPart
+  );
+
+
+  return firstPart.concat(
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  );
+
+}
+
+
+const forcedSchedule =
+  createForcedSchedule();
+
+
+console.log(
+  "Forced schedule:",
+  forcedSchedule
+);
 
 
 
@@ -853,137 +910,62 @@ let lastPlayerReceiveTime =
   null;
 
 
-let remainingHopsBeforeReturn =
+
+/*
+   Forced event waiting to happen.
+
+   Example:
+
+   holder   = participant
+   returnTo = Taylor
+
+   means participant must return
+   the star to Taylor.
+*/
+
+let pendingForced =
+  null;
+
+
+
+/*
+   If a planned forced throw could not
+   happen yet, it remains as "debt"
+   until the next eligible independent throw.
+*/
+
+let forcedDebt =
   0;
 
 
 
-/* =========================================================
-   THROW SEQUENCE
-   ========================================================= */
+/*
+   Prevent the same independent schedule
+   position from being registered twice
+   while waiting for the participant.
+*/
 
-let throwSequence = [];
-
-
-function createThrowSequence() {
-
-
-  const blocks = [];
-
-
-  /*
-     24 blocks:
-     Independent -> Forced
-  */
-
-  for (
-    let i = 0;
-    i < FORCED_THROWS_TOTAL;
-    i++
-  ) {
-
-    blocks.push(
-      [
-        "independent",
-        "forced"
-      ]
-    );
-
-  }
-
-
-
-  /*
-     24 additional independent throws
-  */
-
-  for (
-    let i = 0;
-    i < 24;
-    i++
-  ) {
-
-    blocks.push(
-      [
-        "independent"
-      ]
-    );
-
-  }
-
-
-
-  /*
-     Shuffle complete blocks.
-
-     Forced always immediately
-     follows an independent throw.
-  */
-
-  for (
-    let i = blocks.length - 1;
-    i > 0;
-    i--
-  ) {
-
-
-    const j =
-      Math.floor(
-        Math.random() *
-        (i + 1)
-      );
-
-
-    [
-      blocks[i],
-      blocks[j]
-    ] =
-    [
-      blocks[j],
-      blocks[i]
-    ];
-
-  }
-
-
-
-  throwSequence =
-    blocks.flat();
-
-
-  console.log(
-    "Throw sequence:",
-    throwSequence
-  );
-
-
-  console.log(
-    "Total sequence length:",
-    throwSequence.length
-  );
-
-}
-
-
-
-createThrowSequence();
+let independentSlotPrepared =
+  false;
 
 
 
 /* =========================================================
-   IS NEXT THROW FORCED?
+   CONTINGENT RETURN STATE
+
+   Used only after a FREE independent
+   participant throw.
+
+   0 = direct independent return
+   2 = two AI hops before return
    ========================================================= */
 
-function isNextThrowForced() {
+let contingentActive =
+  false;
 
-  return (
-    throwSequence[
-      totalThrows
-    ] ===
-    "forced"
-  );
 
-}
+let remainingHopsBeforeReturn =
+  0;
 
 
 
@@ -994,7 +976,6 @@ function isNextThrowForced() {
 function getPlayerName(
   playerId
 ) {
-
 
   if (
     playerId === "player0"
@@ -1036,15 +1017,11 @@ function getPlayerName(
 
 /* =========================================================
    BALL SHAPE
-
-   Independent = circle
-   Forced      = star
    ========================================================= */
 
 function setBallShape(
-  isForced
+  forced
 ) {
-
 
   const ball =
     document.getElementById(
@@ -1053,13 +1030,11 @@ function setBallShape(
 
 
   if (!ball) {
-
     return;
-
   }
 
 
-  if (isForced) {
+  if (forced) {
 
     ball.classList.add(
       "forced-ball"
@@ -1080,11 +1055,10 @@ function setBallShape(
 
 
 /* =========================================================
-   CLEAR WRONG-PLAYER NOTE
+   TEXT
    ========================================================= */
 
 function clearForcedNote() {
-
 
   const note =
     document.getElementById(
@@ -1102,22 +1076,7 @@ function clearForcedNote() {
 
 
 
-/* =========================================================
-   UPDATE INSTRUCTION TEXT
-
-   No more:
-   "Taylor passed to Alex"
-   etc.
-
-   Only:
-   - Your turn
-   - Forced instructions
-   ========================================================= */
-
-function updateTurnMessage(
-  holderId
-) {
-
+function updateInstruction() {
 
   const info =
     document.getElementById(
@@ -1126,9 +1085,7 @@ function updateTurnMessage(
 
 
   if (!info) {
-
     return;
-
   }
 
 
@@ -1136,39 +1093,32 @@ function updateTurnMessage(
 
 
 
-  /*
-     The next throw is forced.
-
-     Therefore the CURRENT holder
-     must return the ball to whoever
-     just threw it to them.
-  */
+  /* =====================================================
+     CURRENT THROW IS FORCED
+     ===================================================== */
 
   if (
-    isNextThrowForced()
+    pendingForced
   ) {
 
 
     if (
-      holderId === "player0"
+      currentPlayer === "player0"
     ) {
 
-
       info.innerText =
-        "★ Forced throw: Return the ball to the player who threw it to you.";
+        "★ Forced throw: You must return the star to the player who just threw the ball to you.";
 
     }
 
-
     else {
-
 
       info.innerText =
         "★ Forced throw: " +
         getPlayerName(
-          holderId
+          currentPlayer
         ) +
-        " must return the ball to the player who threw it to them.";
+        " must return the star to the player who just threw the ball to them.";
 
     }
 
@@ -1179,14 +1129,13 @@ function updateTurnMessage(
 
 
 
-  /*
-     Normal participant turn
-  */
+  /* =====================================================
+     NORMAL PARTICIPANT TURN
+     ===================================================== */
 
   if (
-    holderId === "player0"
+    currentPlayer === "player0"
   ) {
-
 
     info.innerText =
       "Your turn.";
@@ -1194,13 +1143,13 @@ function updateTurnMessage(
   }
 
 
-  /*
-     Normal AI turn:
-     no text about who threw to whom
-  */
+  /* =====================================================
+     NORMAL AI TURN
+
+     No more "Taylor passed to Alex"
+     ===================================================== */
 
   else {
-
 
     info.innerText =
       "";
@@ -1212,16 +1161,385 @@ function updateTurnMessage(
 
 
 /* =========================================================
+   PREPARE CURRENT INDEPENDENT SLOT
+   ========================================================= */
+
+function prepareIndependentSlot() {
+
+  if (
+    independentSlotPrepared
+  ) {
+    return;
+  }
+
+
+  if (
+    independentThrowsCompleted >=
+    TOTAL_INDEPENDENT_THROWS
+  ) {
+    return;
+  }
+
+
+  /*
+     Add the planned forced event,
+     if this position has one.
+  */
+
+  if (
+    forcedSchedule[
+      independentThrowsCompleted
+    ]
+  ) {
+
+    forcedDebt++;
+
+  }
+
+
+  independentSlotPrepared =
+    true;
+
+}
+
+
+
+/* =========================================================
+   CAN THIS RECEIVER HAVE A FORCED THROW?
+   ========================================================= */
+
+function canReceiverBeForced(
+  senderId,
+  receiverId
+) {
+
+
+  /*
+     Participant forced throw.
+
+     Participant may have 6 total,
+     exactly 2 back to each AI.
+  */
+
+  if (
+    receiverId === "player0"
+  ) {
+
+
+    if (
+      senderId === "player0"
+    ) {
+
+      return false;
+
+    }
+
+
+    if (
+      forcedCounts.player0 >= 6
+    ) {
+
+      return false;
+
+    }
+
+
+    if (
+      participantForcedTargets[
+        senderId
+      ] >= 2
+    ) {
+
+      return false;
+
+    }
+
+
+    return true;
+
+  }
+
+
+
+  /*
+     AI forced throw.
+  */
+
+  if (
+    aiPlayers.includes(
+      receiverId
+    )
+  ) {
+
+
+    return (
+      forcedCounts[
+        receiverId
+      ] < 6
+    );
+
+  }
+
+
+  return false;
+
+}
+
+
+
+/* =========================================================
+   CHOOSE FORCED RECEIVER FOR AI
+
+   The receiver of the independent ball
+   will be the player who performs
+   the forced return.
+   ========================================================= */
+
+function chooseForcedReceiver(
+  senderId
+) {
+
+
+  /*
+     First priority:
+
+     Make sure participant gets exactly
+     2 forced throws back to EACH AI.
+  */
+
+  if (
+    forcedCounts.player0 < 6 &&
+    participantForcedTargets[
+      senderId
+    ] < 2
+  ) {
+
+    return "player0";
+
+  }
+
+
+
+  /*
+     Otherwise choose an AI who still
+     needs forced throws.
+
+     Sender cannot throw to themselves.
+  */
+
+  const eligible =
+    aiPlayers.filter(
+      function(playerId) {
+
+        return (
+          playerId !== senderId &&
+          forcedCounts[
+            playerId
+          ] < 6
+        );
+
+      }
+    );
+
+
+  if (
+    eligible.length === 0
+  ) {
+
+    return null;
+
+  }
+
+
+
+  /*
+     Prefer whoever has the most
+     forced throws remaining.
+  */
+
+  let largestRemaining =
+    -1;
+
+
+  eligible.forEach(
+    function(playerId) {
+
+      const remaining =
+        6 -
+        forcedCounts[
+          playerId
+        ];
+
+
+      if (
+        remaining >
+        largestRemaining
+      ) {
+
+        largestRemaining =
+          remaining;
+
+      }
+
+    }
+  );
+
+
+  const best =
+    eligible.filter(
+      function(playerId) {
+
+        return (
+          6 -
+          forcedCounts[
+            playerId
+          ] ===
+          largestRemaining
+        );
+
+      }
+    );
+
+
+  return (
+    best[
+      Math.floor(
+        Math.random() *
+        best.length
+      )
+    ]
+  );
+
+}
+
+
+
+/* =========================================================
+   SETUP TRANSFER
+
+   Sometimes the AI holding the ball
+   is the only player who still needs
+   forced throws.
+
+   It cannot throw to itself.
+
+   In that case make one normal AI-to-AI
+   throw first, so another AI can create
+   the required forced throw next.
+   ========================================================= */
+
+function chooseSetupTransfer(
+  senderId
+) {
+
+
+  /*
+     If participant still needs forced throws
+     from another specific AI,
+     move the ball to that AI.
+  */
+
+  const participantSourcesNeeded =
+    aiPlayers.filter(
+      function(playerId) {
+
+        return (
+          playerId !== senderId &&
+          participantForcedTargets[
+            playerId
+          ] < 2
+        );
+
+      }
+    );
+
+
+  if (
+    participantSourcesNeeded.length > 0
+  ) {
+
+    return (
+      participantSourcesNeeded[0]
+    );
+
+  }
+
+
+
+  /*
+     If the CURRENT AI itself still needs
+     forced throws, give the ball to
+     another AI first.
+  */
+
+  if (
+    forcedCounts[
+      senderId
+    ] < 6
+  ) {
+
+    const others =
+      aiPlayers.filter(
+        function(playerId) {
+
+          return (
+            playerId !== senderId
+          );
+
+        }
+      );
+
+
+    return (
+      others[
+        Math.floor(
+          Math.random() *
+          others.length
+        )
+      ]
+    );
+
+  }
+
+
+
+  /*
+     Final safety fallback.
+  */
+
+  const others =
+    aiPlayers.filter(
+      function(playerId) {
+
+        return (
+          playerId !== senderId
+        );
+
+      }
+    );
+
+
+  return (
+    others[
+      Math.floor(
+        Math.random() *
+        others.length
+      )
+    ]
+  );
+
+}
+
+
+
+/* =========================================================
    WAITING
    ========================================================= */
 
 function startWaiting() {
 
-
   if (gameStarted) {
-
     return;
-
   }
 
 
@@ -1260,7 +1578,6 @@ function startWaiting() {
 
 function startGame() {
 
-
   document
     .getElementById(
       "waiting-screen"
@@ -1277,10 +1594,6 @@ function startGame() {
     "block";
 
 
-  /*
-     Initial ball holder
-  */
-
   currentPlayer =
     "playerB";
 
@@ -1289,13 +1602,8 @@ function startGame() {
     null;
 
 
-  /*
-     First throw is independent,
-     therefore normal ball.
-  */
-
   setBallShape(
-    isNextThrowForced()
+    false
   );
 
 
@@ -1304,15 +1612,10 @@ function startGame() {
   );
 
 
-  updateTurnMessage(
-    currentPlayer
-  );
 
-
-
-  /* =======================================================
-     PARTICIPANT CLICK
-     ======================================================= */
+  /* =====================================================
+     PARTICIPANT CLICK LISTENER
+     ===================================================== */
 
   document
     .querySelectorAll(
@@ -1321,20 +1624,15 @@ function startGame() {
     .forEach(
       function(player) {
 
-
         player.addEventListener(
           "click",
           function() {
 
 
-            /*
-               Participant can only act
-               when participant has ball.
-            */
-
             if (
               gameEnded ||
-              currentPlayer !== "player0"
+              currentPlayer !==
+              "player0"
             ) {
 
               return;
@@ -1357,32 +1655,47 @@ function startGame() {
 
 
 
-            /*
-               FORCED THROW:
-
-               Participant can ONLY
-               return to previousPlayer.
-            */
+            /* ===========================================
+               PARTICIPANT FORCED THROW
+               =========================================== */
 
             if (
-              isNextThrowForced() &&
-              this.id !== previousPlayer
+              pendingForced
             ) {
 
 
-              const note =
-                document.getElementById(
-                  "forced-note"
-                );
+              if (
+                this.id !==
+                pendingForced.returnTo
+              ) {
 
 
-              if (note) {
+                const note =
+                  document.getElementById(
+                    "forced-note"
+                  );
 
 
-                note.innerText =
-                  "This is not the player who last threw the ball to you.";
+                if (note) {
+
+                  note.innerText =
+                    "This is not the player who just threw the ball to you.";
+
+                }
+
+
+                return;
 
               }
+
+
+              clearForcedNote();
+
+
+              processForcedThrow(
+                "player0",
+                this.id
+              );
 
 
               return;
@@ -1391,17 +1704,32 @@ function startGame() {
 
 
 
-            /*
-               Correct choice.
-            */
+            /* ===========================================
+               NORMAL PARTICIPANT THROW
+               =========================================== */
 
             clearForcedNote();
 
 
-            processThrow(
+            const wantForced =
+              forcedDebt > 0;
+
+
+            const shouldCreateForced =
+              (
+                wantForced &&
+                canReceiverBeForced(
+                  "player0",
+                  this.id
+                )
+              );
+
+
+            processIndependentThrow(
               "player0",
               this.id,
-              "Player"
+              "Player",
+              shouldCreateForced
             );
 
           }
@@ -1411,15 +1739,152 @@ function startGame() {
     );
 
 
+  prepareTurn();
+
+}
+
+
+
+/* =========================================================
+   PREPARE TURN
+   ========================================================= */
+
+function prepareTurn() {
+
+  if (gameEnded) {
+    return;
+  }
+
+
 
   /*
-     Start AI
+     All 48 independent throws finished.
+
+     A final pending forced may still
+     need to happen.
+  */
+
+  if (
+    independentThrowsCompleted >=
+      TOTAL_INDEPENDENT_THROWS &&
+    !pendingForced
+  ) {
+
+
+    endGame();
+
+    return;
+
+  }
+
+
+
+  /* =====================================================
+     FORCED TURN
+     ===================================================== */
+
+  if (
+    pendingForced
+  ) {
+
+
+    setBallShape(
+      true
+    );
+
+
+    updateInstruction();
+
+
+
+    /*
+       Participant:
+       wait for click.
+    */
+
+    if (
+      currentPlayer ===
+      "player0"
+    ) {
+
+      return;
+
+    }
+
+
+
+    /*
+       AI forced throw:
+       automatic return.
+    */
+
+    setTimeout(
+      function() {
+
+        if (
+          !gameEnded &&
+          pendingForced
+        ) {
+
+
+          processForcedThrow(
+            currentPlayer,
+            pendingForced.returnTo
+          );
+
+        }
+
+      },
+      getRandomDelay()
+    );
+
+
+    return;
+
+  }
+
+
+
+  /* =====================================================
+     NEXT THROW IS INDEPENDENT
+     ===================================================== */
+
+  setBallShape(
+    false
+  );
+
+
+  prepareIndependentSlot();
+
+
+  updateInstruction();
+
+
+
+  /*
+     Participant:
+     wait for free choice.
+  */
+
+  if (
+    currentPlayer ===
+    "player0"
+  ) {
+
+    return;
+
+  }
+
+
+
+  /*
+     AI independent turn.
   */
 
   setTimeout(
     function() {
 
-      aiTurn();
+      aiIndependentTurn();
 
     },
     getRandomDelay()
@@ -1430,46 +1895,93 @@ function startGame() {
 
 
 /* =========================================================
-   PROCESS THROW
+   AI INDEPENDENT TURN
    ========================================================= */
 
-function processThrow(
-  fromId,
-  toId,
-  type
-) {
+function aiIndependentTurn() {
 
-
-  if (gameEnded) {
+  if (
+    gameEnded ||
+    pendingForced ||
+    currentPlayer === "player0"
+  ) {
 
     return;
 
   }
 
 
-
-  /*
-     THIS throw type.
-  */
-
-  const throwIsForced =
-    isNextThrowForced();
+  const senderId =
+    currentPlayer;
 
 
+  const wantForced =
+    forcedDebt > 0;
 
-  /*
-     Safety checks.
-  */
+
+
+  /* =====================================================
+     A FORCED EVENT IS DUE
+     ===================================================== */
 
   if (
-    throwIsForced &&
-    forcedThrowsCompleted >=
-      FORCED_THROWS_TOTAL
+    wantForced
   ) {
 
 
-    console.error(
-      "Too many forced throws."
+    const receiver =
+      chooseForcedReceiver(
+        senderId
+      );
+
+
+
+    /*
+       We can create a forced event now.
+    */
+
+    if (
+      receiver
+    ) {
+
+
+      processIndependentThrow(
+        senderId,
+        receiver,
+        "AI",
+        true
+      );
+
+
+      return;
+
+    }
+
+
+
+    /*
+       No valid forced receiver from
+       current sender.
+
+       Do a setup transfer first.
+
+       Forced debt remains and will
+       be fulfilled on the next
+       possible independent throw.
+    */
+
+    const setupTarget =
+      chooseSetupTransfer(
+        senderId
+      );
+
+
+    processIndependentThrow(
+      senderId,
+      setupTarget,
+      "AI",
+      false,
+      true
     );
 
 
@@ -1479,19 +1991,178 @@ function processThrow(
 
 
 
+  /* =====================================================
+     NORMAL INDEPENDENT AI BEHAVIOR
+     ===================================================== */
+
+  let next;
+
+
+
+  /*
+     Participant previously made
+     a FREE independent throw.
+  */
+
   if (
-    !throwIsForced &&
-    independentThrowsCompleted >=
-      INDEPENDENT_THROWS_TOTAL
+    contingentActive
   ) {
 
+
+    /*
+       Non-return outcome:
+
+       two intermediate AI hops.
+    */
+
+    if (
+      remainingHopsBeforeReturn > 0
+    ) {
+
+
+      const otherAIs =
+        aiPlayers.filter(
+          function(playerId) {
+
+            return (
+              playerId !==
+              senderId
+            );
+
+          }
+        );
+
+
+      next =
+        otherAIs[
+          Math.floor(
+            Math.random() *
+            otherAIs.length
+          )
+        ];
+
+
+      remainingHopsBeforeReturn--;
+
+    }
+
+
+
+    /*
+       Return to participant.
+    */
+
+    else {
+
+
+      next =
+        "player0";
+
+
+      contingentActive =
+        false;
+
+    }
+
+  }
+
+
+
+  /*
+     No active contingent response.
+     Default AI behavior:
+     throw to participant.
+  */
+
+  else {
+
+
+    next =
+      "player0";
+
+  }
+
+
+
+  processIndependentThrow(
+    senderId,
+    next,
+    "AI",
+    false
+  );
+
+}
+
+
+
+/* =========================================================
+   PROCESS INDEPENDENT THROW
+   ========================================================= */
+
+function processIndependentThrow(
+  fromId,
+  toId,
+  type,
+  shouldCreateForced,
+  isSetupTransfer
+) {
+
+  if (gameEnded) {
+    return;
+  }
+
+
+  if (
+    independentThrowsCompleted >=
+      TOTAL_INDEPENDENT_THROWS
+  ) {
 
     console.error(
       "Too many independent throws."
     );
 
-
     return;
+
+  }
+
+
+
+  setBallShape(
+    false
+  );
+
+
+  clearForcedNote();
+
+
+
+  totalThrows++;
+
+  independentThrowsCompleted++;
+
+
+  independentSlotPrepared =
+    false;
+
+
+
+  /*
+     If this independent throw
+     successfully creates a forced
+     event, one item of forced debt
+     has been fulfilled.
+  */
+
+  if (
+    shouldCreateForced
+  ) {
+
+
+    forcedDebt =
+      Math.max(
+        0,
+        forcedDebt - 1
+      );
 
   }
 
@@ -1502,48 +2173,6 @@ function processThrow(
 
 
 
-  /*
-     IMPORTANT:
-
-     During the throw itself:
-
-     Forced -> star
-     Independent -> circle
-  */
-
-  setBallShape(
-    throwIsForced
-  );
-
-
-  clearForcedNote();
-
-
-
-  totalThrows++;
-
-
-
-  if (
-    throwIsForced
-  ) {
-
-    forcedThrowsCompleted++;
-
-  }
-
-  else {
-
-    independentThrowsCompleted++;
-
-  }
-
-
-
-  /*
-     Move ball to receiver.
-  */
-
   updateBallHolder(
     toId,
     senderId
@@ -1551,9 +2180,9 @@ function processThrow(
 
 
 
-  /* =======================================================
-     PARTICIPANT THROW LOG
-     ======================================================= */
+  /* =====================================================
+     PARTICIPANT INDEPENDENT THROW
+     ===================================================== */
 
   if (
     type === "Player"
@@ -1578,16 +2207,13 @@ function processThrow(
         totalThrows,
 
       throwType:
-        throwIsForced
-          ? "forced"
-          : "independent",
+        "independent",
 
       forced:
-        throwIsForced,
+        false,
 
       createsForcedReturn:
-        !throwIsForced &&
-        isNextThrowForced(),
+        shouldCreateForced,
 
       from:
         nickname,
@@ -1614,22 +2240,47 @@ function processThrow(
 
 
     /*
-       Independent participant -> AI.
+       If this throw is about to create
+       a forced return, DO NOT apply
+       the 25/75/50 independent
+       returning probability.
 
-       Returning probability determines
-       whether that AI returns directly.
+       The response is forced.
     */
 
     if (
-      !throwIsForced &&
-      toId !== "player0"
+      shouldCreateForced
     ) {
+
+
+      contingentActive =
+        false;
+
+
+      remainingHopsBeforeReturn =
+        0;
+
+    }
+
+
+
+    /*
+       FREE independent participant throw:
+
+       apply fixed returning rate.
+    */
+
+    else {
 
 
       const returnProb =
         returningRates[
           toId
         ];
+
+
+      contingentActive =
+        true;
 
 
       if (
@@ -1654,32 +2305,13 @@ function processThrow(
 
     }
 
-
-
-    /*
-       If next throw is forced,
-       forced return overrides
-       contingent return plan.
-    */
-
-    if (
-      !throwIsForced &&
-      isNextThrowForced()
-    ) {
-
-
-      remainingHopsBeforeReturn =
-        0;
-
-    }
-
   }
 
 
 
-  /* =======================================================
-     AI THROW LOG
-     ======================================================= */
+  /* =====================================================
+     AI INDEPENDENT THROW
+     ===================================================== */
 
   else {
 
@@ -1690,16 +2322,16 @@ function processThrow(
         totalThrows,
 
       throwType:
-        throwIsForced
-          ? "forced"
-          : "independent",
+        "independent",
 
       forced:
-        throwIsForced,
+        false,
 
       createsForcedReturn:
-        !throwIsForced &&
-        isNextThrowForced(),
+        shouldCreateForced,
+
+      setupTransfer:
+        !!isSetupTransfer,
 
       from:
         getPlayerName(
@@ -1726,67 +2358,62 @@ function processThrow(
 
 
 
-  /* =======================================================
-     NEW MESSAGE
+  /* =====================================================
+     SCHEDULE FORCED RETURN
+     ===================================================== */
 
-     This replaces ALL of the old
-     "X passed the ball to Y" text.
-     ======================================================= */
+  if (
+    shouldCreateForced
+  ) {
 
-  updateTurnMessage(
-    toId
-  );
+
+    pendingForced = {
+
+      holder:
+        toId,
+
+      returnTo:
+        fromId
+
+    };
+
+  }
 
 
 
   /*
-     The moving object keeps the shape
-     of THIS throw.
+     Keep the CIRCLE visible while
+     the independent throw moves.
 
-     Once it arrives, change its shape
-     to show the type of the receiver's
-     NEXT throw.
-
-     So if the receiver now has a forced
-     turn, the ball becomes a star while
-     they are holding it.
+     After arrival, prepare the next turn.
   */
-
-  const nextThrowWillBeForced =
-    isNextThrowForced();
-
 
   setTimeout(
     function() {
 
-
-      if (!gameEnded) {
-
-
-        setBallShape(
-          nextThrowWillBeForced
-        );
-
-      }
+      prepareTurn();
 
     },
     650
   );
 
+}
 
 
-  /*
-     End exactly at 72 throws.
-  */
+
+/* =========================================================
+   PROCESS FORCED THROW
+   ========================================================= */
+
+function processForcedThrow(
+  fromId,
+  toId
+) {
 
   if (
-    totalThrows >=
-    TOTAL_THROWS
+    gameEnded ||
+    !pendingForced
   ) {
-
-
-    endGame();
-
 
     return;
 
@@ -1795,28 +2422,194 @@ function processThrow(
 
 
   /*
-     If AI has the ball,
-     continue automatically.
-
-     If participant has the ball,
-     wait for participant click.
+     Safety:
+     forced holder and return target
+     must be exactly correct.
   */
 
   if (
-    toId !== "player0"
+    fromId !==
+      pendingForced.holder ||
+    toId !==
+      pendingForced.returnTo
   ) {
 
 
-    setTimeout(
-      function() {
+    console.error(
+      "Invalid forced throw:",
+      {
+        fromId:
+          fromId,
 
-        aiTurn();
+        toId:
+          toId,
 
-      },
-      getRandomDelay()
+        pendingForced:
+          pendingForced
+      }
     );
 
+
+    return;
+
   }
+
+
+
+  if (
+    forcedThrowsCompleted >=
+      TOTAL_FORCED_THROWS
+  ) {
+
+
+    console.error(
+      "Too many forced throws."
+    );
+
+
+    return;
+
+  }
+
+
+
+  setBallShape(
+    true
+  );
+
+
+  clearForcedNote();
+
+
+
+  let rt =
+    null;
+
+
+  if (
+    fromId === "player0"
+  ) {
+
+
+    rt =
+      lastPlayerReceiveTime
+        ? Date.now() -
+          lastPlayerReceiveTime
+        : null;
+
+
+    lastPlayerReceiveTime =
+      null;
+
+  }
+
+
+
+  totalThrows++;
+
+  forcedThrowsCompleted++;
+
+
+
+  /* =====================================================
+     UPDATE EXACT FORCED COUNTS
+     ===================================================== */
+
+  forcedCounts[
+    fromId
+  ]++;
+
+
+
+  /*
+     Participant forced throw:
+
+     record WHO participant
+     had to return it to.
+  */
+
+  if (
+    fromId === "player0"
+  ) {
+
+
+    participantForcedTargets[
+      toId
+    ]++;
+
+  }
+
+
+
+  gameLog.push({
+
+    throwNum:
+      totalThrows,
+
+    throwType:
+      "forced",
+
+    forced:
+      true,
+
+    from:
+      getPlayerName(
+        fromId
+      ),
+
+    fromId:
+      fromId,
+
+    to:
+      getPlayerName(
+        toId
+      ),
+
+    targetId:
+      toId,
+
+    rt:
+      rt,
+
+    timestamp:
+      Date.now()
+
+  });
+
+
+
+  const senderId =
+    fromId;
+
+
+
+  pendingForced =
+    null;
+
+
+
+  updateBallHolder(
+    toId,
+    senderId
+  );
+
+
+
+  /*
+     Keep STAR visible while it moves.
+
+     After arrival, next independent
+     throw returns to a normal circle.
+  */
+
+  setTimeout(
+    function() {
+
+      prepareTurn();
+
+    },
+    650
+  );
 
 }
 
@@ -1838,11 +2631,8 @@ function updateBallHolderVisual(
 
 
   if (!target) {
-
     return;
-
   }
-
 
 
   document
@@ -1852,14 +2642,12 @@ function updateBallHolderVisual(
     .forEach(
       function(player) {
 
-
         player.classList.remove(
           "has-ball"
         );
 
       }
     );
-
 
 
   target.classList.add(
@@ -1879,10 +2667,6 @@ function updateBallHolderVisual(
 
 
 
-/* =========================================================
-   FULL HOLDER UPDATE
-   ========================================================= */
-
 function updateBallHolder(
   newHolder,
   senderId
@@ -1897,12 +2681,6 @@ function updateBallHolder(
     newHolder
   );
 
-
-
-  /*
-     Start RT when participant
-     receives the ball.
-  */
 
   if (
     newHolder === "player0"
@@ -1956,14 +2734,12 @@ function moveBall(
   }
 
 
-
   const tRect =
     target.getBoundingClientRect();
 
 
   const cRect =
     container.getBoundingClientRect();
-
 
 
   const x =
@@ -1973,13 +2749,11 @@ function moveBall(
     ball.offsetWidth / 2;
 
 
-
   const y =
     tRect.top -
     cRect.top +
     target.offsetHeight / 2 -
     ball.offsetHeight / 2;
-
 
 
   ball.style.left =
@@ -1999,7 +2773,6 @@ function moveBall(
 
 function getRandomDelay() {
 
-
   return (
     Math.floor(
       Math.random() *
@@ -2013,194 +2786,46 @@ function getRandomDelay() {
 
 
 /* =========================================================
-   AI TURN
-   ========================================================= */
-
-function aiTurn() {
-
-
-  if (
-    gameEnded ||
-    totalThrows >=
-      TOTAL_THROWS
-  ) {
-
-
-    endGame();
-
-
-    return;
-
-  }
-
-
-
-  let next;
-
-
-
-  /*
-     Is THIS upcoming throw forced?
-  */
-
-  const throwIsForced =
-    isNextThrowForced();
-
-
-
-  /* =======================================================
-     FORCED AI THROW
-     ======================================================= */
-
-  if (
-    throwIsForced
-  ) {
-
-
-    /*
-       AI must return to whoever
-       just threw it the ball.
-    */
-
-    next =
-      previousPlayer;
-
-
-
-    /*
-       Safety check.
-    */
-
-    if (
-      !next ||
-      next === currentPlayer
-    ) {
-
-
-      console.error(
-        "Invalid forced throw:",
-        {
-
-          currentPlayer:
-            currentPlayer,
-
-          previousPlayer:
-            previousPlayer,
-
-          totalThrows:
-            totalThrows
-
-        }
-      );
-
-
-      return;
-
-    }
-
-
-
-    /*
-       Forced return overrides
-       previous contingent plan.
-    */
-
-    remainingHopsBeforeReturn =
-      0;
-
-  }
-
-
-
-  /* =======================================================
-     INDEPENDENT AI THROW
-     ======================================================= */
-
-  else {
-
-
-    /*
-       Return directly to participant.
-    */
-
-    if (
-      remainingHopsBeforeReturn ===
-      0
-    ) {
-
-
-      next =
-        "player0";
-
-    }
-
-
-    /*
-       Intermediate AI -> AI throw.
-    */
-
-    else {
-
-
-      remainingHopsBeforeReturn--;
-
-
-
-      const otherAIs =
-        aiPlayers.filter(
-          function(playerId) {
-
-
-            return (
-              playerId !==
-              currentPlayer
-            );
-
-          }
-        );
-
-
-
-      next =
-        otherAIs[
-          Math.floor(
-            Math.random() *
-            otherAIs.length
-          )
-        ];
-
-    }
-
-  }
-
-
-
-  processThrow(
-    currentPlayer,
-    next,
-    "AI"
-  );
-
-}
-
-
-
-/* =========================================================
    END GAME
    ========================================================= */
 
 function endGame() {
 
-
   if (gameEnded) {
-
     return;
-
   }
 
 
   gameEnded =
     true;
+
+
+
+  /* =====================================================
+     FINAL SAFETY CHECK
+     ===================================================== */
+
+  const finalCountsCorrect = (
+
+    independentThrowsCompleted === 48 &&
+
+    forcedThrowsCompleted === 24 &&
+
+    forcedCounts.player0 === 6 &&
+
+    forcedCounts.playerB === 6 &&
+
+    forcedCounts.playerC === 6 &&
+
+    forcedCounts.playerE === 6 &&
+
+    participantForcedTargets.playerB === 2 &&
+
+    participantForcedTargets.playerC === 2 &&
+
+    participantForcedTargets.playerE === 2
+
+  );
 
 
 
@@ -2215,7 +2840,16 @@ function endGame() {
         independentThrowsCompleted,
 
       forcedThrows:
-        forcedThrowsCompleted
+        forcedThrowsCompleted,
+
+      forcedByPlayer:
+        forcedCounts,
+
+      participantForcedTargets:
+        participantForcedTargets,
+
+      finalCountsCorrect:
+        finalCountsCorrect
 
     }
   );
@@ -2236,6 +2870,30 @@ function endGame() {
     forcedThrows:
       forcedThrowsCompleted,
 
+    participantForced:
+      forcedCounts.player0,
+
+    taylorForced:
+      forcedCounts.playerB,
+
+    alexForced:
+      forcedCounts.playerC,
+
+    userForced:
+      forcedCounts.playerE,
+
+    participantForcedToTaylor:
+      participantForcedTargets.playerB,
+
+    participantForcedToAlex:
+      participantForcedTargets.playerC,
+
+    participantForcedToUser:
+      participantForcedTargets.playerE,
+
+    finalCountsCorrect:
+      finalCountsCorrect,
+
     timestamp:
       Date.now()
 
@@ -2250,9 +2908,9 @@ function endGame() {
 
 
 
-  /*
-     Direct Qualtrics case.
-  */
+  /* =====================================================
+     SEND LOG TO QUALTRICS
+     ===================================================== */
 
   if (
     window.Qualtrics &&
@@ -2260,18 +2918,34 @@ function endGame() {
   ) {
 
 
-    Qualtrics.SurveyEngine
-      .setEmbeddedData(
-        "CyberCatchLog",
-        gameLogString
-      );
+    if (
+      Qualtrics.SurveyEngine
+        .setJSEmbeddedData
+    ) {
+
+
+      Qualtrics.SurveyEngine
+        .setJSEmbeddedData(
+          "CyberCatchLog",
+          gameLogString
+        );
+
+    }
+
+
+    else {
+
+
+      Qualtrics.SurveyEngine
+        .setEmbeddedData(
+          "CyberCatchLog",
+          gameLogString
+        );
+
+    }
 
   }
 
-
-  /*
-     GitHub iframe -> Qualtrics
-  */
 
   else {
 
