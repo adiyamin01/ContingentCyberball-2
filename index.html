@@ -753,7 +753,15 @@ const participantForcedTargets = {
 
 };
 
+const participantForcedQuotaBySource = {
 
+  playerB: 2,
+
+  playerC: 2,
+
+  playerE: 2
+
+};
 
 /* =========================================================
    RANDOM FORCED SCHEDULE
@@ -801,6 +809,20 @@ function shuffleArray(array) {
   return array;
 
 }
+
+
+
+
+/* =========================================================
+   PARTICIPANT FORCED SOURCE PLAN
+
+   Fixed: 2 from B + 2 from C + 2 from E.
+   ========================================================= */
+
+console.log(
+  "Participant forced source quota:",
+  participantForcedQuotaBySource
+);
 
 
 
@@ -871,7 +893,6 @@ console.log(
   "Forced schedule:",
   forcedSchedule
 );
-
 
 
 /* =========================================================
@@ -1217,8 +1238,10 @@ function canReceiverBeForced(
   /*
      Participant forced throw.
 
-     Participant may have 6 total,
-     exactly 2 back to each AI.
+     Participant has 6 total:
+     exactly 2 from B,
+     exactly 2 from C,
+     exactly 2 from E.
   */
 
   if (
@@ -1244,10 +1267,17 @@ function canReceiverBeForced(
     }
 
 
+    const sourceQuota =
+      participantForcedQuotaBySource[
+        senderId
+      ] || 0;
+
+
     if (
+      sourceQuota <= 0 ||
       participantForcedTargets[
         senderId
-      ] >= 2
+      ] >= sourceQuota
     ) {
 
       return false;
@@ -1258,7 +1288,6 @@ function canReceiverBeForced(
     return true;
 
   }
-
 
 
   /*
@@ -1303,15 +1332,23 @@ function chooseForcedReceiver(
   /*
      First priority:
 
-     Make sure participant gets exactly
-     2 forced throws back to EACH AI.
+     If THIS sender still owes one of its
+     two participant forced throws,
+     send to participant.
   */
+
+  const participantQuotaFromSender =
+    participantForcedQuotaBySource[
+      senderId
+    ] || 0;
+
 
   if (
     forcedCounts.player0 < 6 &&
+    participantQuotaFromSender > 0 &&
     participantForcedTargets[
       senderId
-    ] < 2
+    ] < participantQuotaFromSender
   ) {
 
     return "player0";
@@ -1443,11 +1480,18 @@ function chooseSetupTransfer(
     aiPlayers.filter(
       function(playerId) {
 
+        const quota =
+          participantForcedQuotaBySource[
+            playerId
+          ] || 0;
+
+
         return (
           playerId !== senderId &&
+          quota > 0 &&
           participantForcedTargets[
             playerId
-          ] < 2
+          ] < quota
         );
 
       }
