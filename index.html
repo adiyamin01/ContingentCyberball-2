@@ -885,7 +885,7 @@ function createForcedSchedule() {
 }
 
 
-const forcedSchedule =
+let forcedSchedule =
   createForcedSchedule();
 
 
@@ -898,6 +898,10 @@ console.log(
 /* =========================================================
    GAME STATE
    ========================================================= */
+
+let roundNumber =
+  1;
+
 
 let currentPlayer =
   "playerB";
@@ -2833,6 +2837,124 @@ function getRandomDelay() {
    END GAME
    ========================================================= */
 
+function restartForSecondRound() {
+
+  console.log(
+    "Round 2 starts seamlessly"
+  );
+
+
+  roundNumber =
+    2;
+
+
+  /* =====================================================
+     RESET FORCED COUNTS
+     ===================================================== */
+
+  forcedCounts.player0 = 0;
+  forcedCounts.playerB = 0;
+  forcedCounts.playerC = 0;
+  forcedCounts.playerE = 0;
+
+
+  /* =====================================================
+     RESET PARTICIPANT 2 + 2 + 2
+     ===================================================== */
+
+  participantForcedTargets.playerB = 0;
+  participantForcedTargets.playerC = 0;
+  participantForcedTargets.playerE = 0;
+
+
+  /* =====================================================
+     NEW RANDOM FORCED SCHEDULE
+     ===================================================== */
+
+  forcedSchedule =
+    createForcedSchedule();
+
+
+  console.log(
+    "Round 2 forced schedule:",
+    forcedSchedule
+  );
+
+
+  /* =====================================================
+     RESET ROUND STATE
+
+     IMPORTANT:
+     currentPlayer is intentionally NOT changed.
+     The ball stays where it already is, so the
+     participant does not see a visual restart.
+     ===================================================== */
+
+  previousPlayer =
+    null;
+
+  totalThrows =
+    0;
+
+  independentThrowsCompleted =
+    0;
+
+  forcedThrowsCompleted =
+    0;
+
+  gameLog =
+    [];
+
+  pendingForced =
+    null;
+
+  forcedDebt =
+    0;
+
+  independentSlotPrepared =
+    false;
+
+  contingentActive =
+    false;
+
+  remainingHopsBeforeReturn =
+    0;
+
+
+  /* If You currently hold the ball, start RT timing
+     naturally from the beginning of round 2. */
+
+  lastPlayerReceiveTime =
+    currentPlayer === "player0"
+      ? Date.now()
+      : null;
+
+
+  setBallShape(
+    false
+  );
+
+
+  clearForcedNote();
+
+
+  /* Re-enable the game without showing any
+     loading / waiting / round transition screen. */
+
+  gameEnded =
+    false;
+
+
+  prepareTurn();
+
+}
+
+
+
+/* =========================================================
+   END GAME / END ROUND
+   ========================================================= */
+
 function endGame() {
 
   if (gameEnded) {
@@ -2874,7 +2996,9 @@ function endGame() {
 
 
   console.log(
-    "FINAL GAME COUNTS:",
+    "FINAL GAME COUNTS - ROUND " +
+    roundNumber +
+    ":",
     {
 
       totalThrows:
@@ -2904,6 +3028,9 @@ function endGame() {
 
     logType:
       "GameSummary",
+
+    round:
+      roundNumber,
 
     totalThrows:
       totalThrows,
@@ -2953,26 +3080,50 @@ function endGame() {
 
 
   /* =====================================================
-     SEND LOG TO QUALTRICS
+     ROUND 1 FINISHED
+
+     Save ONLY Round 1 to Qualtrics.
+     Qualtrics receives CyberCatchLog and shows Next.
+
+     Round 2 then begins invisibly inside the iframe.
      ===================================================== */
 
   if (
-    window.Qualtrics &&
-    Qualtrics.SurveyEngine
+    roundNumber === 1
   ) {
 
 
     if (
+      window.Qualtrics &&
       Qualtrics.SurveyEngine
-        .setJSEmbeddedData
     ) {
 
 
-      Qualtrics.SurveyEngine
-        .setJSEmbeddedData(
-          "CyberCatchLog",
-          gameLogString
-        );
+      if (
+        Qualtrics.SurveyEngine
+          .setJSEmbeddedData
+      ) {
+
+
+        Qualtrics.SurveyEngine
+          .setJSEmbeddedData(
+            "CyberCatchLog",
+            gameLogString
+          );
+
+      }
+
+
+      else {
+
+
+        Qualtrics.SurveyEngine
+          .setEmbeddedData(
+            "CyberCatchLog",
+            gameLogString
+          );
+
+      }
 
     }
 
@@ -2980,45 +3131,53 @@ function endGame() {
     else {
 
 
-      Qualtrics.SurveyEngine
-        .setEmbeddedData(
-          "CyberCatchLog",
-          gameLogString
-        );
+      window.parent.postMessage(
+        {
+
+          type:
+            "CyberCatchLog",
+
+          gameLog:
+            gameLogString,
+
+          participant_name:
+            nickname,
+
+          participant_icon:
+            participantIcon,
+
+          participant_color:
+            participantColor
+
+        },
+        "*"
+      );
 
     }
 
-  }
 
-
-  else {
-
-
-    window.parent.postMessage(
-      {
-
-        type:
-          "CyberCatchLog",
-
-        gameLog:
-          gameLogString,
-
-        participant_name:
-          nickname,
-
-        participant_icon:
-          participantIcon,
-
-        participant_color:
-          participantColor
-
-      },
-      "*"
+    console.log(
+      "Round 1 log sent to Qualtrics. Starting Round 2."
     );
 
+
+    /* No transition screen and no restart message. */
+
+    restartForSecondRound();
+
+    return;
+
   }
 
 
+
+  /* =====================================================
+     ROUND 2 FINISHED
+
+     Do NOT overwrite CyberCatchLog.
+     If the participant has not clicked Next yet,
+     show the normal end screen.
+     ===================================================== */
 
   document.body.innerHTML = `
 
